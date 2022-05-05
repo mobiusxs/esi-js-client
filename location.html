@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Location</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Index</a>
+      <a href="/location.html">Location</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Location</h1>
+    <p id="system"></p>
+    <p id="station"></p>
+  </main>
+  <script>
+    const Http = new XMLHttpRequest();
+    Http.open('GET', 'https://esi.evetech.net/latest/characters/94268459/location/?datasource=tranquility');
+    Http.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
+    Http.setRequestHeader('Authorization', `Bearer ${window.sessionStorage.getItem('access_token')}`)
+    Http.send();
+    
+    Http.onreadystatechange = (e) => {
+        const response = JSON.parse(Http.responseText);
+        document.getElementById('system').innerText = response.solar_system_id;
+        document.getElementById('station').innerText = response.structure_id;
+    }
+  </script>
+</body>
+</html>

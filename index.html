@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Index</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Index</a>
+      <a href="/location.html">Location</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Index</h1>
+    <div id="authorize">
+      <a href="/authorize.html"><img alt="authorize" src="img/eve-sso-login-black-large.png"></a>
+    </div>
+    <div id="logout">
+      <button onclick="logout()">Log Out</button>
+    </div>
+  </main>
+  <script>
+    if (window.sessionStorage.getItem("access_token")) {
+        document.getElementById('authorize').remove();
+    } else {
+        document.getElementById('logout').remove();
+    }
+    
+    function logout() {
+        window.sessionStorage.removeItem('access_token');
+        window.sessionStorage.removeItem('expires_at');
+        window.sessionStorage.removeItem('refresh_token');
+        window.sessionStorage.removeItem('token_type');
+        window.location.reload();
+    }
+  </script>
+</body>
+</html>
