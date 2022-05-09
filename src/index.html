@@ -7,35 +7,9 @@
   <title>Index</title>
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="/">Index</a>
-      <a href="/location.html">Location</a>
-    </nav>
-  </header>
   <main>
     <h1>Index</h1>
-    <div id="authorize">
-      <a href="/authorize.html"><img alt="authorize" src="img/eve-sso-login-black-large.png"></a>
-    </div>
-    <div id="logout">
-      <button onclick="logout()">Log Out</button>
-    </div>
+    <a href="/auth/authorize.html"><img src="img/eve-sso-login-black-large.png"/></a>
   </main>
-  <script>
-    if (window.sessionStorage.getItem("access_token")) {
-        document.getElementById('authorize').remove();
-    } else {
-        document.getElementById('logout').remove();
-    }
-    
-    function logout() {
-        window.sessionStorage.removeItem('access_token');
-        window.sessionStorage.removeItem('expires_at');
-        window.sessionStorage.removeItem('refresh_token');
-        window.sessionStorage.removeItem('token_type');
-        window.location.reload();
-    }
-  </script>
 </body>
 </html>
