@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script src="../js/auth.js" data-protected="true"></script>
+  <title>Location</title>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/content/dashboard.html">Dashboard</a>
+      <a href="/content/location.html">Location</a>
+      <a href="/auth/logout.html">Logout</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Location</h1>
+    <p>System: <span id="system"></span></p>
+    <p>Station: <span id="station"></span></p>
+  </main>
+  <script>
+    const Http = new XMLHttpRequest();
+    Http.open('GET', `https://esi.evetech.net/latest/characters/${window.sessionStorage.getItem('character_id')}/location/?datasource=tranquility`);
+    Http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    // Http.setRequestHeader('Authorization', `Bearer ${window.sessionStorage.getItem('access_token')}`);
+    Http.setRequestHeader('Authorization', `Bearer ${getAccessToken()}`);
+    Http.send();
+
+    Http.onreadystatechange = (e) => {
+      if (Http.readyState === 4) {
+        const location = JSON.parse(Http.responseText);
+
+
+        // Get System Name
+        Http.open('GET', `https://esi.evetech.net/latest/universe/systems/${location.solar_system_id}/?datasource=tranquility&language=en`);
+        Http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        Http.send();
+        Http.onreadystatechange = (e) => {
+          if (Http.readyState === 4) {
+            const system = JSON.parse(Http.responseText);
+            document.getElementById('system').innerText = system.name;
+
+            // Get Structure Name
+            Http.open('GET', `https://esi.evetech.net/latest/universe/structures/${location.structure_id}/?datasource=tranquility`);
+            Http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            // Http.setRequestHeader('Authorization', `Bearer ${window.sessionStorage.getItem('access_token')}`);
+            Http.setRequestHeader('Authorization', `Bearer ${getAccessToken()}`);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+              if (Http.readyState === 4) {
+                const station = JSON.parse(Http.responseText);
+                document.getElementById('station').innerText = station.name;
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
