@@ -15,7 +15,7 @@ const TOKEN_URL = 'https://login.eveonline.com/v2/oauth/token';
 
 // Require Authorization
 if (document.currentScript.getAttribute('data-protected') === 'true') {
-    if (window.sessionStorage.getItem('access_token') === null) {
+    if (localStorage.getItem('access_token') === null) {
         window.location.replace(LOGOUT_URL);
     }
 }
@@ -46,8 +46,8 @@ function authorize() {
     // Generate one-time-use unique state and verifier and store them in sessionStorage
     const verifier = generateRandomString(512);
     const state = btoa(`${Date.now()}.${CLIENT_ID}.${verifier}`).slice(0, 31);
-    window.sessionStorage.setItem('verifier', verifier);
-    window.sessionStorage.setItem('state', state);
+    localStorage.setItem('verifier', verifier);
+    localStorage.setItem('state', state);
 
     // Generate the code challenge from the verifier and use it to construct authorization query parameters
     generateCodeChallenge(verifier).then(function(challenge) {
@@ -78,13 +78,12 @@ function callback() {
 
     // Verify received state is same as stored state.
     // If not, handle as logout
-    if (window.sessionStorage.getItem('state') !== params.state) {
-        window.sessionStorage.removeItem('state');
+    if (localStorage.getItem('state') !== params.state) {
+        localStorage.removeItem('state');
         window.location.replace(LOGOUT_REDIRECT_URL);
         return
     }
 
-    // TODO: switch to fetch
     // Use received one-time-use authorization code to request access token
     const Http = new XMLHttpRequest();
     Http.open('POST', TOKEN_URL);
@@ -93,7 +92,7 @@ function callback() {
         'grant_type': 'authorization_code',
         'code': params.code,
         'client_id': CLIENT_ID,
-        'code_verifier': window.sessionStorage.getItem('verifier')
+        'code_verifier': localStorage.getItem('verifier')
     }));
 
     Http.onreadystatechange = (e) => {
@@ -101,8 +100,8 @@ function callback() {
             storeJWT(Http.responseText);
 
             // Delete obviated values
-            window.sessionStorage.removeItem('verifier')
-            window.sessionStorage.removeItem('state');
+            localStorage.removeItem('verifier')
+            localStorage.removeItem('state');
 
             window.location.replace(AUTHORIZATION_REDIRECT_URL);
         }
@@ -111,21 +110,21 @@ function callback() {
 
 
 function logout() {
-    window.sessionStorage.clear();
+    localStorage.clear();
     window.location.replace(LOGOUT_REDIRECT_URL);
 }
 
 
 function storeJWT(responseText) {
     const jwt = JSON.parse(responseText);
-    window.sessionStorage.setItem('access_token', jwt.access_token);
-    window.sessionStorage.setItem('expires_at', new Date().getTime() + jwt.expires_in);
-    window.sessionStorage.setItem('refresh_token', jwt.refresh_token);
-    window.sessionStorage.setItem('token_type', jwt.token_type);
+    localStorage.setItem('access_token', jwt.access_token);
+    localStorage.setItem('expires_at', (new Date().getTime() / 1000) + jwt.expires_in);  // convert  milliseconds to seconds and add expiry
+    localStorage.setItem('refresh_token', jwt.refresh_token);
+    localStorage.setItem('token_type', jwt.token_type);
 
     const access_token = parseAccessToken(jwt.access_token)
-    window.sessionStorage.setItem('name', access_token.payload.name)
-    window.sessionStorage.setItem('character_id', access_token.payload.sub.split(':')[2])
+    localStorage.setItem('name', access_token.payload.name)
+    localStorage.setItem('character_id', access_token.payload.sub.split(':')[2])
 }
 
 
