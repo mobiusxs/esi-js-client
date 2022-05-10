@@ -22,7 +22,8 @@
         </div>
     </main>
     <script>
-        document.getElementById('name').innerText = window.sessionStorage.getItem('name');
+        document.getElementById('name').innerText = localStorage.getItem('name');
+        document.getElementById('expired').innerText = (localStorage.getItem('expires_at') < new Date().getTime() / 1000).toString();
     </script>
 </body>
 </html>
