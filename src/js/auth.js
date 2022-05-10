@@ -109,12 +109,20 @@ function callback() {
 }
 
 
+/**
+ * Remove all locally stored values and return the user to the index page.
+ */
 function logout() {
     localStorage.clear();
     window.location.replace(LOGOUT_REDIRECT_URL);
 }
 
 
+/**
+ * Parse and store JWT received from the Eve SSO server.
+ *
+ * @param responseText string - raw JWT string returned from server
+ */
 function storeJWT(responseText) {
     const jwt = JSON.parse(responseText);
     localStorage.setItem('access_token', jwt.access_token);
@@ -128,6 +136,12 @@ function storeJWT(responseText) {
 }
 
 
+/**
+ * Parse the JWT access token into text and return as an object
+ *
+ * @param accessToken string - raw access token from the JWT returned from the Eve SSO server
+ * @returns {{payload: any, signature: *, header: any}} object - contains header, payload, and signature objects
+ */
 function parseAccessToken(accessToken) {
     const components = accessToken.split('.');
     return {
