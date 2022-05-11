@@ -254,3 +254,28 @@ async function request(url, method='GET', body=null, headers={}) {
     return response.json();
 }
 
+
+/**
+ * Simple example function that pairs with the /content/location endpoint.
+ */
+async function getLocation() {
+    // Request current location
+    const character_id = localStorage.getItem('character_id');
+    const location_url = `https://esi.evetech.net/latest/characters/${character_id}/location/?datasource=tranquility`;
+    const location = await request(location_url);
+
+    // Resolve current solar system name from id
+    const system_url = `https://esi.evetech.net/latest/universe/systems/${location.solar_system_id}/?datasource=tranquility&language=en`;
+    const system = await request(system_url);
+
+    // Resolve current structure name from id
+    const structure_url = `https://esi.evetech.net/latest/universe/structures/${location.structure_id}/?datasource=tranquility`;
+    const structure = await request(structure_url);
+
+    // Insert values into page
+    document.getElementById('character-name').innerText = localStorage.getItem('name')
+    document.getElementById('system-id').innerText = location.solar_system_id
+    document.getElementById('structure-id').innerText = location.structure_id
+    document.getElementById('system-name').innerText = system.name
+    document.getElementById('structure-name').innerText = structure.name
+}
