@@ -185,15 +185,21 @@ async function generateCodeChallenge(codeVerifier) {
 /**
  * Retrieve Access Token for accessing protected ESI endpoints.
  * Use refresh token to obtain new access token if expired.
+ *
  * @returns {string} access token
  */
 async function getAccessToken() {
     const expired = Number.parseInt(localStorage.getItem('expires_at')) < (new Date().getTime() / 1000);
-    console.log(`Expired: ${expired}`);
+
     if (expired) {
-        const jwt = await refreshJWT();
-        storeJWT(JSON.stringify(jwt))
+        try {
+            const jwt = await refreshJWT();
+            storeJWT(JSON.stringify(jwt))
+        } catch (error) {
+            console.error('Error refreshing token:', error);
+        }
     }
+
     return localStorage.getItem('access_token');
 }
 
