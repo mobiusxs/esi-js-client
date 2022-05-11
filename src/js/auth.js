@@ -181,58 +181,41 @@ async function generateCodeChallenge(codeVerifier) {
     return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
+
 /**
  * Retrieve Access Token for accessing protected ESI endpoints.
  * Use refresh token to obtain new access token if expired.
  * @returns {string} access token
  */
-function getAccessToken() {
-    // TODO: check if access_token is expired. If so, refresh first
-    if (window.sessionStorage.getItem('expires_at') > new Date().getTime()) {
-        console.log('token still valid');
-        // TODO: return access_token
-    } else {
-        console.log('token expired');
-        // TODO: refresh and then return access_token
-
-        // const refreshToken = getRefreshToken();
-        //
-        // if (refreshToken === null) {
-        //     window.location.replace(LOGOUT_REDIRECT_URL)
-        //     return;
-        // }
-        //
-        // const Http = new XMLHttpRequest();
-        // Http.open('POST', TOKEN_URL);
-        // Http.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-        // Http.send(new URLSearchParams({
-        //     'grant_type': 'refresh_token',
-        //     'host': HOST_URL,
-        //     'refresh_token': refreshToken,
-        //     'client_id': CLIENT_ID
-        // }));
-        //
-        // Http.onreadystatechange = (e) => {
-        //     if (Http.readyState === 4) {
-        //         storeJWT(Http.responseText);
-        //         return window.sessionStorage.getItem('access_token');
-        //     }
-        // }
+async function getAccessToken() {
+    const expired = Number.parseInt(localStorage.getItem('expires_at')) < (new Date().getTime() / 1000);
+    console.log(`Expired: ${expired}`);
+    if (expired) {
+        const jwt = await refreshJWT();
+        storeJWT(JSON.stringify(jwt))
     }
-    return window.sessionStorage.getItem('access_token');
+    return localStorage.getItem('access_token');
 }
 
 
-// const method = '';
-// const url = '';
-// const headers = {};
-// const payload = JSON.stringify({}) || null
-//
-// fetch(url, {
-//     method: method,
-//     headers: headers,
-//     body: payload
-// })
-//     .then(res => res.json())
-//     .then(data => console.log(data))
-//     .catch(error => console.log(error))
+/**
+ * Request new JWT from the Eve SSO Token endpoint.
+ *
+ * @returns {Promise<any>}
+ */
+async function refreshJWT() {
+    const response = await fetch(TOKEN_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Host': HOST_URL
+        },
+
+        body: new URLSearchParams({
+            'grant_type': 'refresh_token',
+            'refresh_token': localStorage.getItem('refresh_token'),
+            'client_id': CLIENT_ID
+        })
+    });
+    return response.json();
+}
