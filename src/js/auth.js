@@ -225,3 +225,32 @@ async function refreshJWT() {
     });
     return response.json();
 }
+
+
+/**
+ * Request an ESI endpoint and include the access_token in the header.
+ *
+ * @param url - endpoint to request
+ * @param method - HTTP method
+ * @param body object - any required data
+ * @param headers object - any required headers
+ * @returns {Promise<any>}
+ */
+async function request(url, method='GET', body=null, headers={}) {
+    headers['Authorization'] = `Bearer ${await getAccessToken()}`
+
+    if (body) {
+        body = new URLSearchParams(body);
+    } else {
+        body = null
+    }
+
+    const response = await fetch(url, {
+        method: method,
+        headers: headers,
+        body: body
+    });
+
+    return response.json();
+}
+
